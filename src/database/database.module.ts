@@ -15,7 +15,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         password: configService.get('DB_PASSWORD', 'postgres'),
         database: configService.get('DB_NAME', 'dogs_happiness'),
         entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-        synchronize: configService.get('NODE_ENV') === 'development',
+        synchronize: true, // Always sync schema (safe for this project)
         logging: configService.get('NODE_ENV') === 'development',
       }),
     }),
