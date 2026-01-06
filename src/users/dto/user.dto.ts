@@ -19,6 +19,8 @@ export class CreateUserDto {
 }
 
 export class UpdateUserDto {
+  firstName?: string;  // Добавлен firstname для обновления имени
+  lastName?: string;   // Добавлен lastname для обновления фамилии
   phoneNumber?: string;
   email?: string;
 }
