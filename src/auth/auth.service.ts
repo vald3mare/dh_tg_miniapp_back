@@ -18,12 +18,17 @@ export class AuthService {
    */
   async validateTelegramData(initData: string, botToken: string): Promise<any> {
     try {
+      this.logger.log(`📋 Получена initData длина: ${initData.length}`);
+      this.logger.log(`🔑 Bot token длина: ${botToken.length}`);
+      
       const data = new URLSearchParams(initData);
       const hash = data.get('hash');
       
       if (!hash) {
         throw new BadRequestException('Telegram hash не найден в initData');
       }
+
+      this.logger.log(`🔐 Hash из initData: ${hash}`);
 
       // Удаляем hash из данных перед проверкой
       data.delete('hash');
@@ -32,9 +37,14 @@ export class AuthService {
       const entries = Array.from(data.entries()).sort((a, b) => a[0].localeCompare(b[0]));
       const dataCheckString = entries.map(([key, value]) => `${key}=${value}`).join('\n');
 
+      this.logger.log(`📝 Data check string: ${dataCheckString}`);
+
       // Создаем HMAC-SHA256 для проверки
+      // Правильный алгоритм Telegram: secretKey = HMAC_SHA256(botToken, 'WebAppData')
       const secretKey = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();
       const computedHash = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
+
+      this.logger.log(`🔍 Computed hash: ${computedHash}`);
 
       // Сравниваем хэши
       if (computedHash !== hash) {
