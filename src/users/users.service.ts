@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
@@ -6,6 +6,8 @@ import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
@@ -39,8 +41,25 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User | null> {
-    await this.usersRepository.update(id, updateUserDto);
-    return this.findById(id);
+    try {
+      this.logger.log(`🔍 Looking for user ${id}`);
+      const user = await this.usersRepository.findOne({ where: { id } });
+      
+      if (!user) {
+        this.logger.warn(`⚠️  User ${id} not found`);
+        return null;
+      }
+
+      this.logger.log(`📤 Updating user ${id} with:`, JSON.stringify(updateUserDto));
+      await this.usersRepository.update(id, updateUserDto);
+      
+      const updated = await this.findById(id);
+      this.logger.log(`✅ User ${id} updated successfully`);
+      return updated;
+    } catch (error) {
+      this.logger.error(`❌ Error in update method:`, error.message, error.stack);
+      throw error;
+    }
   }
 
   async updateSubscription(id: string, plan: string, expiresAt: Date): Promise<User | null> {

@@ -1,9 +1,11 @@
-import { Controller, Get, Put, Body, Param } from '@nestjs/common';
+import { Controller, Get, Put, Body, Param, Logger } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/user.dto';
 
 @Controller('users')
 export class UsersController {
+  private readonly logger = new Logger(UsersController.name);
+
   constructor(private readonly usersService: UsersService) {}
 
   @Get(':id')
@@ -13,6 +15,14 @@ export class UsersController {
 
   @Put(':id')
   async updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+    try {
+      this.logger.log(`📝 Updating user ${id} with data:`, JSON.stringify(updateUserDto));
+      const result = await this.usersService.update(id, updateUserDto);
+      this.logger.log(`✅ User ${id} updated successfully`);
+      return result;
+    } catch (error) {
+      this.logger.error(`❌ Error updating user ${id}:`, error.message, error.stack);
+      throw error;
+    }
   }
 }
