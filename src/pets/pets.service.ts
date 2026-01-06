@@ -25,9 +25,9 @@ export class PetsService {
    */
   async create(userId: string, createPetDto: CreatePetDto): Promise<Pet> {
     try {
-      // Валидация UUID
-      if (!this.isValidUuid(userId)) {
-        throw new BadRequestException(`Invalid userId UUID format: ${userId}`);
+      // Валидация userId
+      if (!userId || typeof userId !== 'string' || userId.trim().length === 0) {
+        throw new BadRequestException(`Invalid userId format`);
       }
 
       // Валидация обязательных полей
@@ -69,8 +69,8 @@ export class PetsService {
    */
   async findByUserId(userId: string): Promise<Pet[]> {
     try {
-      if (!this.isValidUuid(userId)) {
-        throw new BadRequestException(`Invalid userId UUID format: ${userId}`);
+      if (!userId || typeof userId !== 'string' || userId.trim().length === 0) {
+        throw new BadRequestException(`Invalid userId format`);
       }
 
       this.logger.log(`🔍 Finding pets for user ${userId}`);
@@ -98,8 +98,8 @@ export class PetsService {
    */
   async findById(id: string): Promise<Pet | null> {
     try {
-      if (!this.isValidUuid(id)) {
-        throw new BadRequestException(`Invalid pet id UUID format: ${id}`);
+      if (!id || typeof id !== 'string' || id.trim().length === 0) {
+        throw new BadRequestException(`Invalid pet id format`);
       }
 
       this.logger.log(`🔍 Finding pet by id: ${id}`);
@@ -134,8 +134,8 @@ export class PetsService {
     updatePetDto: Partial<CreatePetDto>,
   ): Promise<Pet | null> {
     try {
-      if (!this.isValidUuid(id)) {
-        throw new BadRequestException(`Invalid pet id UUID format: ${id}`);
+      if (!id || typeof id !== 'string' || id.trim().length === 0) {
+        throw new BadRequestException(`Invalid pet id format`);
       }
 
       this.logger.log(
@@ -177,8 +177,8 @@ export class PetsService {
    */
   async delete(id: string): Promise<void> {
     try {
-      if (!this.isValidUuid(id)) {
-        throw new BadRequestException(`Invalid pet id UUID format: ${id}`);
+      if (!id || typeof id !== 'string' || id.trim().length === 0) {
+        throw new BadRequestException(`Invalid pet id format`);
       }
 
       this.logger.log(`🗑️  Deleting pet ${id}`);

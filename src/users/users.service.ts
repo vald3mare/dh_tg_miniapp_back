@@ -61,9 +61,9 @@ export class UsersService {
    */
   async findById(id: string): Promise<User | null> {
     try {
-      // Валидация UUID формата
-      if (!this.isValidUuid(id)) {
-        throw new BadRequestException(`Invalid UUID format: ${id}`);
+      // Валидация что ID не пустой
+      if (!id || typeof id !== 'string' || id.trim().length === 0) {
+        throw new BadRequestException(`Invalid user ID format`);
       }
 
       this.logger.log(`🔍 Finding user by id: ${id}`);
@@ -129,9 +129,9 @@ export class UsersService {
     updateUserDto: UpdateUserDto,
   ): Promise<User | null> {
     try {
-      // Валидация UUID формата
-      if (!this.isValidUuid(id)) {
-        throw new BadRequestException(`Invalid UUID format: ${id}`);
+      // Валидация что ID не пустой
+      if (!id || typeof id !== 'string' || id.trim().length === 0) {
+        throw new BadRequestException(`Invalid user ID format`);
       }
 
       this.logger.log(`🔍 Looking for user ${id} to update`);
@@ -181,8 +181,8 @@ export class UsersService {
     expiresAt: Date,
   ): Promise<User | null> {
     try {
-      if (!this.isValidUuid(id)) {
-        throw new BadRequestException(`Invalid UUID format: ${id}`);
+      if (!id || typeof id !== 'string' || id.trim().length === 0) {
+        throw new BadRequestException(`Invalid user ID format`);
       }
 
       this.logger.log(
@@ -220,8 +220,8 @@ export class UsersService {
     updateUserDto: any,
   ): Promise<User> {
     try {
-      if (!this.isValidUuid(id)) {
-        throw new BadRequestException(`Invalid UUID format: ${id}`);
+      if (!id || typeof id !== 'string' || id.trim().length === 0) {
+        throw new BadRequestException(`Invalid user ID format`);
       }
 
       this.logger.log(`👤 Creating new user with id ${id}`);
