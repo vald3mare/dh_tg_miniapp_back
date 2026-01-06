@@ -208,6 +208,57 @@ export class UsersService {
   }
 
   /**
+   * Создать или обновить пользователя
+   * Используется когда фронтенд отправляет ID которого еще нет в БД
+   * Создает нового пользователя с этим ID и данными из updateUserDto
+   * @param id - UUID пользователя
+   * @param updateUserDto - Данные для создания/обновления
+   * @returns Созданный или обновленный пользователь
+   */
+  async createOrUpdate(
+    id: string,
+    updateUserDto: any,
+  ): Promise<User> {
+    try {
+      if (!this.isValidUuid(id)) {
+        throw new BadRequestException(`Invalid UUID format: ${id}`);
+      }
+
+      this.logger.log(`👤 Creating new user with id ${id}`);
+
+      // Создаем новое пользователя с указанным ID
+      let user = await this.usersRepository.findOne({ where: { id } });
+
+      if (!user) {
+        user = this.usersRepository.create({
+          id,
+          firstName: updateUserDto.firstName || '',
+          lastName: updateUserDto.lastName || '',
+          email: updateUserDto.email || '',
+          phoneNumber: updateUserDto.phoneNumber || '',
+          subscriptionPlan: 'free',
+        });
+        user = await this.usersRepository.save(user);
+        this.logger.log(`✅ New user created with id ${id}`);
+      } else {
+        // Если пользователь вдруг существует - обновляем его
+        Object.assign(user, updateUserDto);
+        user = await this.usersRepository.save(user);
+        this.logger.log(`✅ Existing user updated: ${id}`);
+      }
+
+      return user;
+    } catch (error) {
+      this.logger.error(
+        `❌ Error in createOrUpdate for user ${id}:`,
+        error.message,
+        error.stack,
+      );
+      throw error;
+    }
+  }
+
+  /**
    * Вспомогательный метод для валидации UUID
    * @param uuid - Строка для проверки
    * @returns true если корректный UUID формат

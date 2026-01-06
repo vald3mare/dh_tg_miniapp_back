@@ -24,6 +24,7 @@ export class UsersController {
   /**
    * GET /users/:id
    * Получить полные данные профиля пользователя
+   * Если пользователь не найден - вернет 404
    * @param id - UUID пользователя
    * @returns Данные пользователя с питомцами и заказами
    */
@@ -54,6 +55,7 @@ export class UsersController {
   /**
    * PUT /users/:id
    * Обновить данные профиля пользователя
+   * ВАЖНО: Если пользователя нет в БД - автоматически создает нового
    * Принимает только поля: firstName, lastName, email, phoneNumber
    * @param id - UUID пользователя
    * @param updateUserDto - Данные для обновления
@@ -77,14 +79,18 @@ export class UsersController {
         JSON.stringify(updateUserDto),
       );
 
-      const result = await this.usersService.update(id, updateUserDto);
+      // Сначала пытаемся обновить существующего пользователя
+      let result = await this.usersService.update(id, updateUserDto);
 
+      // Если пользователя нет - создаем нового с этими данными
       if (!result) {
-        this.logger.warn(`⚠️  User ${id} not found for update`);
-        throw new NotFoundException(`User with id ${id} not found`);
+        this.logger.log(`👤 User ${id} not found, creating new user...`);
+        result = await this.usersService.createOrUpdate(id, updateUserDto);
+        this.logger.log(`✅ New user created: ${id}`);
+      } else {
+        this.logger.log(`✅ User ${id} updated successfully`);
       }
 
-      this.logger.log(`✅ User ${id} updated successfully`);
       return result;
     } catch (error) {
       this.logger.error(
